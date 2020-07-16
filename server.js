@@ -7,10 +7,12 @@ const db = require('./db')
  const server = express()
 
  const studentRoute = require('./routes/users')
+ const projectRoute = require('./routes/projects')
  
  server.use(cors())
  server.use(express.json())
 server.use('/users', studentRoute)
+server.use('/projects', projectRoute)
 
  server.get('/', function (req, res) {
 res.send('The server is running')

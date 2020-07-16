@@ -9,12 +9,36 @@ studentRoute.get("/", async(req, res)=>{
 
 })
 studentRoute.get("/:id", async(req, res)=>{
-    const response = await db.query('SELECT _id, name, surname, email, dateofbirth FROM students WHERE _id = $1', [req.params.id])
-    
+    const response = await db.query('SELECT * FROM students JOIN projects ON students._id  = projects.studentid WHERE students._id = $1', [req.params.id])
+    const organized = response.rows.reduce((obj, value)=> {
+        console.log(value)
+        const current = obj.find(x => x._id === value.studentid)
+        if (current)
+            current.projects.push({
+                name: value.name,
+                description: value.description,
+
+            })
+        else {
+            obj.push({
+                _id: value.studentid,
+                name: value.name,
+                surname: value.surname,
+                email: value.email,
+
+                projects: [{
+                    name: value.name,
+                    description: value.description
+                }]
+            })
+        }
+        return obj
+    }, [])
+
     if(response.rowCount === 0)
     return res.status(404).send('Not found')
 
-    res.send(response.rows[0])
+    res.send(organized)
 
 })
 studentRoute.post("/", async(req, res)=>{
